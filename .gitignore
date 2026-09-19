@@ -34,7 +34,9 @@ frontend/.vite/
 
 # Environment & IDE
 .env
-.env.local
+.env.*
+*.env
+backend/.env
 .vscode/
 .idea/
 *.swp

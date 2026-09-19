@@ -11,6 +11,8 @@ Interactive API Docs (Swagger): http://127.0.0.1:8000/docs
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 import io
 import re
 import uuid
@@ -352,10 +354,10 @@ def load_artifacts():
     except Exception as e:
         print(f"[LOAD] ChromaDB warning: {e}.", flush=True)
 
-    print("[LOAD] Step 5: Initializing SQLite Database Tables...", flush=True)
+    print("[LOAD] Step 5: Initializing PostgreSQL database tables...", flush=True)
     try:
         init_db()
-        print("[LOAD] SQLite database tables initialized.", flush=True)
+        print("[LOAD] PostgreSQL database tables initialized.", flush=True)
     except Exception as e:
         print(f"[LOAD] Database initialization error: {e}", flush=True)
 
