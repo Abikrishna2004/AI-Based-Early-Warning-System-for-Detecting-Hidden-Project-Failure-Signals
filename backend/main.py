@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional, cast
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
+from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from catboost import CatBoostClassifier, Pool
@@ -1444,11 +1444,42 @@ def _chunk_text_by_paragraphs_and_sentences(text_content: str) -> List[str]:
 
     return final_chunks
 
-# 10. RAG Document Ingestion Endpoint
-@app.post("/ingest_document")
-def ingest_document_knowledge(req: IngestDocumentRequest):
+def _process_ingestion_background(project_id: str, doc_name: str, chunks: List[str]):
     try:
         model = get_embed_model()
+        collection = get_chroma_collection()
+        
+        # Generate embeddings for each chunk (use batch_size to save memory)
+        with torch.no_grad():
+            embeddings = model.encode(chunks, show_progress_bar=False, batch_size=8).tolist()
+
+        ids = [f"{project_id}_{uuid.uuid4().hex[:8]}_{i}" for i in range(len(chunks))]
+        metadatas = [
+            {
+                "project_id": project_id,
+                "document_name": doc_name,
+                "chunk_index": i
+            }
+            for i in range(len(chunks))
+        ]
+
+        # Add to ChromaDB vector collection
+        collection.add(
+            documents=chunks,
+            embeddings=embeddings,
+            ids=ids,
+            metadatas=cast(Any, metadatas)
+        )
+        print(f"Background ingestion complete for {project_id}: {len(chunks)} chunks.")
+    except Exception as e:
+        print(f"Background ingestion failed: {e}")
+
+# 10. RAG Document Ingestion Endpoint
+@app.post("/ingest_document")
+def ingest_document_knowledge(req: IngestDocumentRequest, background_tasks: BackgroundTasks):
+    try:
+        # Pre-initialize or fail fast
+        get_embed_model()
         collection = get_chroma_collection()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to initialize RAG vector database: {str(e)}")
@@ -1472,36 +1503,17 @@ def ingest_document_knowledge(req: IngestDocumentRequest):
     except Exception:
         pass
 
-    # Generate embeddings for each chunk
-    with torch.no_grad():
-        embeddings = model.encode(chunks, show_progress_bar=False).tolist()
-
     doc_name = req.document_name or "document.txt"
-    ids = [f"{req.project_id}_{uuid.uuid4().hex[:8]}_{i}" for i in range(len(chunks))]
-    metadatas = [
-        {
-            "project_id": req.project_id,
-            "document_name": doc_name,
-            "chunk_index": i
-        }
-        for i in range(len(chunks))
-    ]
-
-    # Add to ChromaDB vector collection
-    collection.add(
-        documents=chunks,
-        embeddings=embeddings,
-        ids=ids,
-        metadatas=cast(Any, metadatas)
-    )
-
+    
+    # Send actual processing to background
+    background_tasks.add_task(_process_ingestion_background, req.project_id, doc_name, chunks)
 
     return {
         "status": "success",
         "project_id": req.project_id,
         "document_name": doc_name,
         "chunks_ingested": len(chunks),
-        "message": f"Successfully ingested {len(chunks)} substantive chunks into project knowledge base for '{req.project_id}'."
+        "message": f"Successfully queued {len(chunks)} chunks for background ingestion into project knowledge base."
     }
 
 def _format_direct_answer(question: str, text: str) -> str:
