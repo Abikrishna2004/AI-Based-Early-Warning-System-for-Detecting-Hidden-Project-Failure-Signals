@@ -39,9 +39,11 @@ import ruptures as rpt
 from sqlalchemy.orm import Session
 from database import init_db, get_db, Project, ProjectInput, Prediction, Recommendation
 
+import asyncio
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    load_artifacts()
+    asyncio.create_task(asyncio.to_thread(load_artifacts))
     yield
 
 # 1. Initialize FastAPI App & CORS
