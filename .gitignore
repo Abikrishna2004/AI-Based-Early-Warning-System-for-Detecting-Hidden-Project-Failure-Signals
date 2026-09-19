@@ -41,6 +41,8 @@ backend/.env
 .idea/
 *.swp
 *.swo
+firebase-debug.log
+frontend/firebase-debug.log
 
 # OS files
 Thumbs.db

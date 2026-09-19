@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "compilepulse"
+  },
+  "targets": {
+    "compilepulse": {
+      "hosting": {
+        "compile-pulse": [
+          "compile-pulse"
+        ]
+      }
+    }
+  }
+}
