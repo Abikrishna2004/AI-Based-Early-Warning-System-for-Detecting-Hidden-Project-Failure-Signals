@@ -11,6 +11,8 @@ Interactive API Docs (Swagger): http://127.0.0.1:8000/docs
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+import torch
+torch.set_num_threads(1)
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 import io
@@ -238,9 +240,9 @@ def get_embed_model():
 def get_flan_model():
     global flan_tokenizer, flan_model
     if flan_model is None:
-        print("Initializing local seq2seq model 'google/flan-t5-base'...", flush=True)
-        flan_tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
-        flan_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base")
+        print("Initializing local seq2seq model 'google/flan-t5-small'...", flush=True)
+        flan_tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-small")
+        flan_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")
         print("Local Flan-T5 model loaded successfully.", flush=True)
     return flan_tokenizer, flan_model
 
@@ -340,19 +342,8 @@ def load_artifacts():
             print(f"[LOAD] Signal precedence computation error: {e}", flush=True)
 
 
-    print("[LOAD] Step 3: Pre-warming RAG module (SentenceTransformer)...", flush=True)
-    try:
-        get_embed_model()
-        print("[LOAD] SentenceTransformer initialized.", flush=True)
-    except Exception as e:
-        print(f"[LOAD] SentenceTransformer warning: {e}.", flush=True)
-
-    print("[LOAD] Step 4: Pre-warming ChromaDB...", flush=True)
-    try:
-        get_chroma_collection()
-        print("[LOAD] ChromaDB collection initialized.", flush=True)
-    except Exception as e:
-        print(f"[LOAD] ChromaDB warning: {e}.", flush=True)
+    print("[LOAD] Step 3: Deferred RAG module pre-warming (on-demand loading)...", flush=True)
+    print("[LOAD] Step 4: Deferred ChromaDB pre-warming (on-demand loading)...", flush=True)
 
     print("[LOAD] Step 5: Initializing PostgreSQL database tables...", flush=True)
     try:
@@ -361,6 +352,8 @@ def load_artifacts():
     except Exception as e:
         print(f"[LOAD] Database initialization error: {e}", flush=True)
 
+    import gc
+    gc.collect()
     print("[LOAD] ALL ARTIFACTS LOADED SUCCESSFULLY!", flush=True)
 
 # 4. Health Check Endpoint
