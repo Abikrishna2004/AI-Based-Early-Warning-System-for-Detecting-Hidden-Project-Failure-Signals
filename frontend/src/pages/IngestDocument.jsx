@@ -82,7 +82,7 @@ export default function IngestDocument() {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const timeoutId = setTimeout(() => controller.abort(), 90000);
 
       const ingestRes = await fetch(`${API_BASE_URL}/ingest_document`, {
         method: 'POST',
@@ -119,7 +119,7 @@ export default function IngestDocument() {
       navigate('/document-details');
     } catch (err) {
       if (err.name === 'AbortError') {
-        setError('Upload & Ingest Error: Request timed out after 15 seconds. Please try again.');
+        setError('Upload & Ingest Error: Request timed out. The server is generating vector embeddings in the background, please try again in a moment.');
       } else {
         setError(`Upload & Ingest Error: ${err.message}`);
       }

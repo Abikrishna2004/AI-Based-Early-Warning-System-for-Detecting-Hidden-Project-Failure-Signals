@@ -51,7 +51,7 @@ export default function DocumentsKnowledge() {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const timeoutId = setTimeout(() => controller.abort(), 90000);
 
       const ingestRes = await fetch(`${API_BASE_URL}/ingest_document`, {
         method: 'POST',
@@ -75,7 +75,7 @@ export default function DocumentsKnowledge() {
       setRagText('');
     } catch (err) {
       if (err.name === 'AbortError') {
-        alert('Upload & Ingest Error: Request timed out after 15 seconds. Please try again.');
+        alert('Upload & Ingest Error: Request timed out after 90 seconds. Please try again.');
       } else {
         alert(`Upload & Ingest Error: ${err.message}`);
       }
