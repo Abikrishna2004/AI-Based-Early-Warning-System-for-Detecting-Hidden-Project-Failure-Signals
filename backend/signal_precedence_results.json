@@ -1,0 +1,249 @@
+{
+  "module_name": "Risk Signal Precedence Analysis",
+  "qualifying_projects_count": 644,
+  "disclaimer_text": "This shows statistical precedence patterns across historical projects, not proven causation \u2014 correlated timing may share a common underlying cause rather than one metric directly driving the other.",
+  "strongest_directional_precedences": [
+    {
+      "metric_A": "issue_count_delta",
+      "metric_B": "task_completion_rate_delta",
+      "display_name_A": "Issue Count Delta",
+      "display_name_B": "Task Completion Rate Delta",
+      "optimal_lag_weeks": 1,
+      "correlation_strength": 0.0839,
+      "abs_correlation": 0.0839,
+      "precedence_label": "'Issue Count Delta' tends to precede 'Task Completion Rate Delta' by 1 week with statistical correlation strength +0.0839"
+    },
+    {
+      "metric_A": "task_completion_rate_delta",
+      "metric_B": "issue_count_delta",
+      "display_name_A": "Task Completion Rate Delta",
+      "display_name_B": "Issue Count Delta",
+      "optimal_lag_weeks": 1,
+      "correlation_strength": 0.0595,
+      "abs_correlation": 0.0595,
+      "precedence_label": "'Task Completion Rate Delta' tends to precede 'Issue Count Delta' by 1 week with statistical correlation strength +0.0595"
+    },
+    {
+      "metric_A": "team_size_delta",
+      "metric_B": "task_completion_rate_delta",
+      "display_name_A": "Team Size Delta",
+      "display_name_B": "Task Completion Rate Delta",
+      "optimal_lag_weeks": 1,
+      "correlation_strength": 0.0387,
+      "abs_correlation": 0.0387,
+      "precedence_label": "'Team Size Delta' tends to precede 'Task Completion Rate Delta' by 1 week with statistical correlation strength +0.0387"
+    },
+    {
+      "metric_A": "task_completion_rate_delta",
+      "metric_B": "team_size_delta",
+      "display_name_A": "Task Completion Rate Delta",
+      "display_name_B": "Team Size Delta",
+      "optimal_lag_weeks": 1,
+      "correlation_strength": 0.0209,
+      "abs_correlation": 0.0209,
+      "precedence_label": "'Task Completion Rate Delta' tends to precede 'Team Size Delta' by 1 week with statistical correlation strength +0.0209"
+    }
+  ],
+  "all_pairwise_precedences": [
+    {
+      "metric_A": "issue_count_delta",
+      "metric_B": "team_size_delta",
+      "display_name_A": "Issue Count Delta",
+      "display_name_B": "Team Size Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": 0.2728,
+      "abs_correlation": 0.2728,
+      "precedence_label": "'Issue Count Delta' and 'Team Size Delta' exhibit concurrent co-movement (lag 0) with correlation strength +0.2728"
+    },
+    {
+      "metric_A": "team_size_delta",
+      "metric_B": "issue_count_delta",
+      "display_name_A": "Team Size Delta",
+      "display_name_B": "Issue Count Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": 0.2728,
+      "abs_correlation": 0.2728,
+      "precedence_label": "'Team Size Delta' and 'Issue Count Delta' exhibit concurrent co-movement (lag 0) with correlation strength +0.2728"
+    },
+    {
+      "metric_A": "task_completion_rate_delta",
+      "metric_B": "overdue_tasks_percentage_delta",
+      "display_name_A": "Task Completion Rate Delta",
+      "display_name_B": "Overdue Tasks % Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": -0.2342,
+      "abs_correlation": 0.2342,
+      "precedence_label": "'Task Completion Rate Delta' and 'Overdue Tasks % Delta' exhibit concurrent co-movement (lag 0) with correlation strength -0.2342"
+    },
+    {
+      "metric_A": "overdue_tasks_percentage_delta",
+      "metric_B": "task_completion_rate_delta",
+      "display_name_A": "Overdue Tasks % Delta",
+      "display_name_B": "Task Completion Rate Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": -0.2342,
+      "abs_correlation": 0.2342,
+      "precedence_label": "'Overdue Tasks % Delta' and 'Task Completion Rate Delta' exhibit concurrent co-movement (lag 0) with correlation strength -0.2342"
+    },
+    {
+      "metric_A": "issue_count_delta",
+      "metric_B": "overdue_tasks_percentage_delta",
+      "display_name_A": "Issue Count Delta",
+      "display_name_B": "Overdue Tasks % Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": -0.1609,
+      "abs_correlation": 0.1609,
+      "precedence_label": "'Issue Count Delta' and 'Overdue Tasks % Delta' exhibit concurrent co-movement (lag 0) with correlation strength -0.1609"
+    },
+    {
+      "metric_A": "overdue_tasks_percentage_delta",
+      "metric_B": "issue_count_delta",
+      "display_name_A": "Overdue Tasks % Delta",
+      "display_name_B": "Issue Count Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": -0.1609,
+      "abs_correlation": 0.1609,
+      "precedence_label": "'Overdue Tasks % Delta' and 'Issue Count Delta' exhibit concurrent co-movement (lag 0) with correlation strength -0.1609"
+    },
+    {
+      "metric_A": "issue_count_delta",
+      "metric_B": "task_completion_rate_delta",
+      "display_name_A": "Issue Count Delta",
+      "display_name_B": "Task Completion Rate Delta",
+      "optimal_lag_weeks": 1,
+      "correlation_strength": 0.0839,
+      "abs_correlation": 0.0839,
+      "precedence_label": "'Issue Count Delta' tends to precede 'Task Completion Rate Delta' by 1 week with statistical correlation strength +0.0839"
+    },
+    {
+      "metric_A": "overdue_tasks_percentage_delta",
+      "metric_B": "team_size_delta",
+      "display_name_A": "Overdue Tasks % Delta",
+      "display_name_B": "Team Size Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": -0.0795,
+      "abs_correlation": 0.0795,
+      "precedence_label": "'Overdue Tasks % Delta' and 'Team Size Delta' exhibit concurrent co-movement (lag 0) with correlation strength -0.0795"
+    },
+    {
+      "metric_A": "team_size_delta",
+      "metric_B": "overdue_tasks_percentage_delta",
+      "display_name_A": "Team Size Delta",
+      "display_name_B": "Overdue Tasks % Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": -0.0795,
+      "abs_correlation": 0.0795,
+      "precedence_label": "'Team Size Delta' and 'Overdue Tasks % Delta' exhibit concurrent co-movement (lag 0) with correlation strength -0.0795"
+    },
+    {
+      "metric_A": "task_completion_rate_delta",
+      "metric_B": "defect_density_delta",
+      "display_name_A": "Task Completion Rate Delta",
+      "display_name_B": "Defect Density Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": 0.0671,
+      "abs_correlation": 0.0671,
+      "precedence_label": "'Task Completion Rate Delta' and 'Defect Density Delta' exhibit concurrent co-movement (lag 0) with correlation strength +0.0671"
+    },
+    {
+      "metric_A": "defect_density_delta",
+      "metric_B": "task_completion_rate_delta",
+      "display_name_A": "Defect Density Delta",
+      "display_name_B": "Task Completion Rate Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": 0.0671,
+      "abs_correlation": 0.0671,
+      "precedence_label": "'Defect Density Delta' and 'Task Completion Rate Delta' exhibit concurrent co-movement (lag 0) with correlation strength +0.0671"
+    },
+    {
+      "metric_A": "task_completion_rate_delta",
+      "metric_B": "issue_count_delta",
+      "display_name_A": "Task Completion Rate Delta",
+      "display_name_B": "Issue Count Delta",
+      "optimal_lag_weeks": 1,
+      "correlation_strength": 0.0595,
+      "abs_correlation": 0.0595,
+      "precedence_label": "'Task Completion Rate Delta' tends to precede 'Issue Count Delta' by 1 week with statistical correlation strength +0.0595"
+    },
+    {
+      "metric_A": "team_size_delta",
+      "metric_B": "task_completion_rate_delta",
+      "display_name_A": "Team Size Delta",
+      "display_name_B": "Task Completion Rate Delta",
+      "optimal_lag_weeks": 1,
+      "correlation_strength": 0.0387,
+      "abs_correlation": 0.0387,
+      "precedence_label": "'Team Size Delta' tends to precede 'Task Completion Rate Delta' by 1 week with statistical correlation strength +0.0387"
+    },
+    {
+      "metric_A": "issue_count_delta",
+      "metric_B": "defect_density_delta",
+      "display_name_A": "Issue Count Delta",
+      "display_name_B": "Defect Density Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": 0.0375,
+      "abs_correlation": 0.0375,
+      "precedence_label": "'Issue Count Delta' and 'Defect Density Delta' exhibit concurrent co-movement (lag 0) with correlation strength +0.0375"
+    },
+    {
+      "metric_A": "defect_density_delta",
+      "metric_B": "issue_count_delta",
+      "display_name_A": "Defect Density Delta",
+      "display_name_B": "Issue Count Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": 0.0375,
+      "abs_correlation": 0.0375,
+      "precedence_label": "'Defect Density Delta' and 'Issue Count Delta' exhibit concurrent co-movement (lag 0) with correlation strength +0.0375"
+    },
+    {
+      "metric_A": "task_completion_rate_delta",
+      "metric_B": "team_size_delta",
+      "display_name_A": "Task Completion Rate Delta",
+      "display_name_B": "Team Size Delta",
+      "optimal_lag_weeks": 1,
+      "correlation_strength": 0.0209,
+      "abs_correlation": 0.0209,
+      "precedence_label": "'Task Completion Rate Delta' tends to precede 'Team Size Delta' by 1 week with statistical correlation strength +0.0209"
+    },
+    {
+      "metric_A": "defect_density_delta",
+      "metric_B": "team_size_delta",
+      "display_name_A": "Defect Density Delta",
+      "display_name_B": "Team Size Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": 0.019,
+      "abs_correlation": 0.019,
+      "precedence_label": "'Defect Density Delta' and 'Team Size Delta' exhibit concurrent co-movement (lag 0) with correlation strength +0.0190"
+    },
+    {
+      "metric_A": "team_size_delta",
+      "metric_B": "defect_density_delta",
+      "display_name_A": "Team Size Delta",
+      "display_name_B": "Defect Density Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": 0.019,
+      "abs_correlation": 0.019,
+      "precedence_label": "'Team Size Delta' and 'Defect Density Delta' exhibit concurrent co-movement (lag 0) with correlation strength +0.0190"
+    },
+    {
+      "metric_A": "overdue_tasks_percentage_delta",
+      "metric_B": "defect_density_delta",
+      "display_name_A": "Overdue Tasks % Delta",
+      "display_name_B": "Defect Density Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": -0.015,
+      "abs_correlation": 0.015,
+      "precedence_label": "'Overdue Tasks % Delta' and 'Defect Density Delta' exhibit concurrent co-movement (lag 0) with correlation strength -0.0150"
+    },
+    {
+      "metric_A": "defect_density_delta",
+      "metric_B": "overdue_tasks_percentage_delta",
+      "display_name_A": "Defect Density Delta",
+      "display_name_B": "Overdue Tasks % Delta",
+      "optimal_lag_weeks": 0,
+      "correlation_strength": -0.015,
+      "abs_correlation": 0.015,
+      "precedence_label": "'Defect Density Delta' and 'Overdue Tasks % Delta' exhibit concurrent co-movement (lag 0) with correlation strength -0.0150"
+    }
+  ]
+}

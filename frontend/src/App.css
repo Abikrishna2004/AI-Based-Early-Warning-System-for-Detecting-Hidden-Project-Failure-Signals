@@ -1,0 +1,330 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Signal Room Design System Core Tokens & Styles */
+
+:root {
+  --color-bg: #0B1220;
+  --color-surface: #131B2E;
+  --color-border: #232E47;
+  --color-text-primary: #E8ECF4;
+  --color-text-secondary: #8B95AC;
+  --color-accent: #FF8A3D;
+  --color-risk-low: #34D399;
+  --color-risk-medium: #FBBF24;
+  --color-risk-high: #F5544D;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-sm: 6px;
+  --radius-lg: 10px;
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg) !important;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+/* Headings: Space Grotesk */
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.page-title {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.section-header {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
+  line-height: 1.3;
+}
+
+.body-text {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
+.small-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.emphasis-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+/* Three Standard Card Treatments */
+
+/* (1) Metric / KPI Cards */
+.card-kpi {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2);
+  box-shadow: none;
+}
+
+/* (2) Content Cards */
+.card-content {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  box-shadow: none;
+}
+
+/* (3) Chart Cards */
+.card-chart {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 2px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  box-shadow: none;
+}
+
+/* Buttons */
+
+.btn-primary {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  transition: background-color 150ms ease, opacity 150ms ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #e07730;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #1A243B;
+  border-color: #324163;
+}
+
+/* Preset Pill Buttons */
+.btn-preset-healthy {
+  background-color: rgba(52, 211, 153, 0.1);
+  color: var(--color-risk-low);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.btn-preset-warning {
+  background-color: rgba(251, 191, 36, 0.1);
+  color: var(--color-risk-medium);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.btn-preset-critical {
+  background-color: rgba(245, 84, 77, 0.1);
+  color: var(--color-risk-high);
+  border: 1px solid rgba(245, 84, 77, 0.3);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+/* Form Inputs, Selects & Textareas */
+.input-signal, select.input-signal, textarea.input-signal {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 8px 12px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 150ms ease;
+}
+
+.input-signal:focus, select.input-signal:focus, textarea.input-signal:focus {
+  border-color: var(--color-accent);
+}
+
+.input-signal::placeholder {
+  color: var(--color-text-secondary);
+}
+
+/* Custom Styled Checkboxes & Radio Buttons */
+input[type="checkbox"] {
+  accent-color: var(--color-accent);
+}
+
+/* Risk Pill Badges */
+.badge-risk-low {
+  background-color: rgba(52, 211, 153, 0.15);
+  color: var(--color-risk-low);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-risk-medium {
+  background-color: rgba(251, 191, 36, 0.15);
+  color: var(--color-risk-medium);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-risk-high {
+  background-color: rgba(245, 84, 77, 0.15);
+  color: var(--color-risk-high);
+  border: 1px solid rgba(245, 84, 77, 0.3);
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Page Transition Motion */
+.page-transition {
+  animation: pageFadeIn 250ms ease-out forwards;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Data Pulse Motion */
+.data-pulse {
+  animation: dataPulseHighlight 1.5s cubic-bezier(0.4, 0, 0.6, 1) 1;
+}
+
+@keyframes dataPulseHighlight {
+  0% {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 12px rgba(255, 138, 61, 0.4);
+  }
+  100% {
+    border-color: var(--color-border);
+    box-shadow: none;
+  }
+}
+
+/* Chat Styling */
+.chat-window-signal {
+  max-height: 440px;
+  min-height: 280px;
+  overflow-y: auto;
+  padding: var(--space-2);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.chat-bubble-user-signal {
+  background-color: #1A2742;
+  color: var(--color-text-primary);
+  border: 1px solid #2C3D61;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.chat-bubble-assistant-signal {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 14px;
+}
