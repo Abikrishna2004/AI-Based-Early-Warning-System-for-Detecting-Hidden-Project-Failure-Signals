@@ -32,9 +32,6 @@ from catboost import CatBoostClassifier, Pool
 import pypdf
 import torch
 import torch.nn as nn
-from sentence_transformers import SentenceTransformer
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-import chromadb
 import ruptures as rpt
 from sqlalchemy.orm import Session
 from database import init_db, get_db, Project, ProjectInput, Prediction, Recommendation
@@ -235,7 +232,8 @@ class PyTorchLSTMForecaster(nn.Module):
 def get_embed_model():
     global embed_model
     if embed_model is None:
-        print("Initializing SentenceTransformer model 'all-MiniLM-L6-v2'...")
+        print("Initializing SentenceTransformer model 'all-MiniLM-L6-v2'...", flush=True)
+        from sentence_transformers import SentenceTransformer
         embed_model = SentenceTransformer('all-MiniLM-L6-v2')
     return embed_model
 
@@ -243,6 +241,7 @@ def get_flan_model():
     global flan_tokenizer, flan_model
     if flan_model is None:
         print("Initializing local seq2seq model 'google/flan-t5-small'...", flush=True)
+        from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
         flan_tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-small")
         flan_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")
         print("Local Flan-T5 model loaded successfully.", flush=True)
@@ -251,6 +250,7 @@ def get_flan_model():
 def get_chroma_collection():
     global chroma_client, chroma_collection
     if chroma_collection is None:
+        import chromadb
         base_dir = os.path.dirname(__file__)
         chroma_db_dir = os.environ.get("SENTINEL_CHROMA_DIR", os.path.join(base_dir, 'chroma_db'))
         chroma_client = chromadb.PersistentClient(path=chroma_db_dir)
