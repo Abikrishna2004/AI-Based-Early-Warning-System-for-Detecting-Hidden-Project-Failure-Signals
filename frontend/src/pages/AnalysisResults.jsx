@@ -312,9 +312,9 @@ export default function AnalysisResults() {
 
   // SHAP Factors Chart Data
   const shapChartData = (top_5_shap_factors || []).map(f => ({
-    name: f.feature,
-    impact: parseFloat(f.shap_impact.toFixed(4)),
-    value: f.value
+    name: f?.feature || 'Feature',
+    impact: f?.shap_impact != null ? parseFloat(Number(f.shap_impact).toFixed(4)) : 0,
+    value: f?.value ?? 'N/A'
   }));
 
   // Historical Overdue Time Series Chart for Change-Point Detection
@@ -342,7 +342,18 @@ export default function AnalysisResults() {
   const currentOverdueVal = latestInput?.overdue_tasks_percentage ?? 57.1;
   const linFc = lstmForecast?.linear_forecasts?.overdue_tasks_percentage || { forecast_week_1: 64.2, forecast_week_2: 72.5, forecast_week_3: 80.8 };
   const lstmFc = lstmForecast?.lstm_forecasts?.overdue_tasks_percentage || { forecast_week_1: 61.8, forecast_week_2: 65.4, forecast_week_3: 68.1 };
-  const maeBench = lstmForecast?.mae_benchmark || { linear_mae: 0.90, lstm_mae: 0.74, improvement_percentage: 17.32 };
+  
+  const rawMae = lstmForecast?.mae_benchmark;
+  const overdueMae = rawMae?.metrics?.overdue_tasks_percentage || rawMae;
+  const linearMaeVal = overdueMae?.linear_mean_mae ?? overdueMae?.linear_mae ?? 0.90;
+  const lstmMaeVal = overdueMae?.lstm_mean_mae ?? overdueMae?.lstm_mae ?? 0.74;
+  const impPct = overdueMae?.improvement_percentage ?? (linearMaeVal > 0 ? parseFloat((((linearMaeVal - lstmMaeVal) / linearMaeVal) * 100).toFixed(2)) : 17.32);
+
+  const maeBench = {
+    linear_mae: typeof linearMaeVal === 'number' ? linearMaeVal : 0.90,
+    lstm_mae: typeof lstmMaeVal === 'number' ? lstmMaeVal : 0.74,
+    improvement_percentage: impPct
+  };
 
   const sideBySideForecastChartData = [
     { week: 'W11', actual: parseFloat(Math.max(0, currentOverdueVal - 42.5).toFixed(1)), linear: null, lstm: null },

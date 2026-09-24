@@ -43,6 +43,7 @@ backend/.env
 *.swo
 firebase-debug.log
 frontend/firebase-debug.log
+frontend/.firebase/
 
 # OS files
 Thumbs.db
