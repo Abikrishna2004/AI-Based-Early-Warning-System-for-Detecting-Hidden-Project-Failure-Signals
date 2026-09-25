@@ -37,7 +37,10 @@ const PRESETS = {
 };
 
 export default function ProjectInput() {
-  const [formData, setFormData] = useState(PRESETS.critical);
+  const [formData, setFormData] = useState({
+    ...PRESETS.critical,
+    project_name: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -78,9 +81,11 @@ export default function ProjectInput() {
 
   const handlePreset = (presetKey) => {
     const currentId = formData.project_id;
+    const currentName = formData.project_name;
     setFormData({
       ...PRESETS[presetKey],
-      project_id: currentId || PRESETS[presetKey].project_id
+      project_id: currentId || PRESETS[presetKey].project_id,
+      project_name: currentName || ''
     });
     setError(null);
   };
@@ -169,7 +174,7 @@ export default function ProjectInput() {
                 onChange={handleChange}
                 required
                 className="input-signal font-medium"
-                placeholder="e.g. Core Platform Upgrade"
+                placeholder="Enter project name (e.g. Core Platform Upgrade)"
               />
             </div>
           </div>

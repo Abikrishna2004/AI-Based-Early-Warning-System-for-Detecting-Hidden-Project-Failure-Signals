@@ -36,7 +36,10 @@ const PRESETS = {
 };
 
 export default function AnalyzeProject() {
-  const [formData, setFormData] = useState(PRESETS.critical);
+  const [formData, setFormData] = useState({
+    ...PRESETS.critical,
+    project_name: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
@@ -76,9 +79,11 @@ export default function AnalyzeProject() {
 
   const handlePreset = (presetKey) => {
     const currentId = formData.project_id;
+    const currentName = formData.project_name;
     setFormData({
       ...PRESETS[presetKey],
-      project_id: currentId || PRESETS[presetKey].project_id
+      project_id: currentId || PRESETS[presetKey].project_id,
+      project_name: currentName || ''
     });
     setResult(null);
     setError(null);
@@ -163,7 +168,7 @@ export default function AnalyzeProject() {
                 <label className="form-label">
                   Project Name <span className="text-[11px] font-normal text-[#8B95AC]">(Entered by user)</span>
                 </label>
-                <input type="text" name="project_name" value={formData.project_name || ''} onChange={handleChange} required className="form-input" placeholder="e.g. Core Platform Upgrade" />
+                <input type="text" name="project_name" value={formData.project_name || ''} onChange={handleChange} required className="form-input" placeholder="Enter project name (e.g. Core Platform Upgrade)" />
               </div>
             </div>
 
