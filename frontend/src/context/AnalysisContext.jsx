@@ -21,7 +21,7 @@ export function AnalysisProvider({ children }) {
       deadline_mentions: [
         "Milestone 3 delivery is scheduled for October 15, 2026."
       ],
-      extracted_text: "Project Sentinel Weekly Status Report - Week 20.\nMilestone 3 delivery is scheduled for October 15, 2026.\nTask 4 is currently blocked due to severe resource constraint on backend engineering.\nOverdue tasks increased to 57.1% creating slippage concern for upcoming Q4 milestone.",
+      extracted_text: "CompilePulse Weekly Status Report - Week 20.\nMilestone 3 delivery is scheduled for October 15, 2026.\nTask 4 is currently blocked due to severe resource constraint on backend engineering.\nOverdue tasks increased to 57.1% creating slippage concern for upcoming Q4 milestone.",
       timestamp: new Date().toISOString()
     }
   ]);

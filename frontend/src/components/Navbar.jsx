@@ -64,15 +64,20 @@ export default function Navbar() {
         {/* Left Section: Logo, App Name & Version Badge */}
         <div className="flex items-center gap-8 flex-shrink-0">
           <NavLink to="/" className="flex items-center gap-3 no-underline">
-            <div className="w-9 h-9 rounded-[6px] bg-[#FF8A3D] flex items-center justify-center text-[#0B1220]">
-              <ShieldAlert className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-[8px] overflow-hidden border border-[#FF8A3D]/40 bg-[#0B1220] flex items-center justify-center shadow-[0_0_12px_rgba(255,138,61,0.25)]">
+              <img src="/logo.jpg" alt="CompilePulse Logo" className="w-full h-full object-cover" />
             </div>
-            <div className="flex items-center gap-2.5">
-              <span className="font-heading text-[20px] font-bold text-[#E8ECF4] tracking-tight leading-none">
-                Project Sentinel
-              </span>
-              <span className="font-sans text-[12px] font-medium px-2 py-0.5 rounded-[6px] bg-[#131B2E] text-[#8B95AC] border border-[#232E47]">
-                v1.5.0
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2.5">
+                <span className="font-heading text-[20px] font-bold text-[#E8ECF4] tracking-tight leading-none">
+                  CompilePulse
+                </span>
+                <span className="font-sans text-[11px] font-medium px-2 py-0.5 rounded-[6px] bg-[#131B2E] text-[#FF8A3D] border border-[#FF8A3D]/30 font-mono">
+                  v1.5.0
+                </span>
+              </div>
+              <span className="text-[10px] text-[#8B95AC] font-medium tracking-tight">
+                AI Project Intelligence &amp; Early Warning
               </span>
             </div>
           </NavLink>

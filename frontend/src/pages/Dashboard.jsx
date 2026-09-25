@@ -272,7 +272,7 @@ export default function Dashboard() {
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-[#8B95AC] truncate max-w-[160px]">{p.project_name || 'Project Sentinel'}</div>
+                          <div className="text-[11px] text-[#8B95AC] truncate max-w-[160px]">{p.project_name || 'CompilePulse Project'}</div>
                         </td>
 
                         {/* Urgency Badge */}

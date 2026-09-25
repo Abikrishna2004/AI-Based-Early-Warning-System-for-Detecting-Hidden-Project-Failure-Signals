@@ -45,8 +45,8 @@ async def lifespan(app: FastAPI):
 
 # 1. Initialize FastAPI App & CORS
 app = FastAPI(
-    title="Project Sentinel AI Backend",
-    description="API endpoint for AI-based project risk early warning predictions, SHAP explainability, counterfactual simulation, anomaly detection, time-series forecasting, document analysis, and local RAG Q&A",
+    title="CompilePulse AI Backend",
+    description="API endpoint for CompilePulse - An AI-Powered Project Intelligence & Early Warning Platform",
     version="1.5.0",
     lifespan=lifespan
 )
@@ -69,7 +69,7 @@ app.add_middleware(
 # 2. Pydantic Models for Input Features, Simulation, Forecasting & RAG
 class ProjectFeatures(BaseModel):
     project_id: Optional[str] = Field("PROJ-101", json_schema_extra={"example": "PROJ-101"}, description="Project ID identifier")
-    project_name: Optional[str] = Field(None, json_schema_extra={"example": "Project Sentinel Main"}, description="Optional project name")
+    project_name: Optional[str] = Field(None, json_schema_extra={"example": "CompilePulse Main"}, description="Optional project name")
     week_number: float = Field(..., json_schema_extra={"example": 20.0}, description="Week number of the project")
     issue_count: float = Field(..., json_schema_extra={"example": 15.0}, description="Total issue count")
     task_completion_rate: float = Field(..., json_schema_extra={"example": 42.9}, description="Task completion rate (%)")
@@ -369,7 +369,7 @@ def load_artifacts():
 def health_check():
     return {
         "status": "online",
-        "service": "Project Sentinel AI API",
+        "service": "CompilePulse AI API",
         "catboost_loaded": cb_model is not None,
         "anomaly_model_loaded": anomaly_model is not None,
         "rag_module_loaded": embed_model is not None and chroma_collection is not None

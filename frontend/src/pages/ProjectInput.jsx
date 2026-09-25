@@ -6,7 +6,7 @@ import { API_BASE_URL } from '../config';
 const PRESETS = {
   healthy: {
     project_id: 'PROJ-HEALTHY',
-    project_name: 'Project Sentinel Healthy Sprint',
+    project_name: 'CompilePulse Healthy Sprint',
     week_number: 12, issue_count: 5, task_completion_rate: 90.0,
     unresolved_issue_percentage: 10.0, overdue_tasks_percentage: 5.0,
     defect_density: 2.0, critical_bug_count: 0, team_size: 8,
@@ -16,7 +16,7 @@ const PRESETS = {
   },
   warning: {
     project_id: 'PROJ-WARN',
-    project_name: 'Project Sentinel Moderate Warning',
+    project_name: 'CompilePulse Moderate Warning',
     week_number: 16, issue_count: 18, task_completion_rate: 65.0,
     unresolved_issue_percentage: 35.0, overdue_tasks_percentage: 25.0,
     defect_density: 12.0, critical_bug_count: 1, team_size: 6,
@@ -26,7 +26,7 @@ const PRESETS = {
   },
   critical: {
     project_id: 'PROJ-101',
-    project_name: 'Project Sentinel Critical Core',
+    project_name: 'CompilePulse Critical Core',
     week_number: 20, issue_count: 32, task_completion_rate: 42.9,
     unresolved_issue_percentage: 57.1, overdue_tasks_percentage: 57.1,
     defect_density: 28.6, critical_bug_count: 3, team_size: 4,

@@ -1,4 +1,4 @@
-// Centralized Design System Theme Constants for Project Sentinel (Signal Room Theme)
+// Centralized Design System Theme Constants for CompilePulse — AI-Powered Project Intelligence & Early Warning Platform
 
 export const THEME = {
   bg: '#0B1220',
