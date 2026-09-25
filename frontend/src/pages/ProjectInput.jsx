@@ -120,9 +120,6 @@ export default function ProjectInput() {
       <div className="card-content space-y-6">
         <div>
           <h1 className="page-title">Project Risk Evaluation Input</h1>
-          <p className="small-label mt-1">
-            Input 15 numerical metric parameters to evaluate project risk level and SHAP contributing factors
-          </p>
         </div>
 
         {/* Quick Presets */}
@@ -151,12 +148,7 @@ export default function ProjectInput() {
           {/* Project Identity */}
           <div className="p-4 bg-[#0B1220] border border-[#232E47] rounded-[6px] grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="emphasis-label block">Project ID</label>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#131B2E] text-[#34D399] border border-[#34D399]/40 font-bold">
-                  🔒 Auto-Generated (PROJ-YYMMXXX)
-                </span>
-              </div>
+              <label className="emphasis-label block mb-1">Project ID</label>
               <input
                 type="text"
                 name="project_id"
@@ -167,7 +159,9 @@ export default function ProjectInput() {
               />
             </div>
             <div>
-              <label className="emphasis-label block mb-1">Project Name</label>
+              <label className="emphasis-label block mb-1">
+                Project Name <span className="text-[11px] font-normal text-[#8B95AC]">(Entered by user)</span>
+              </label>
               <input
                 type="text"
                 name="project_name"
@@ -186,23 +180,23 @@ export default function ProjectInput() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="small-label block mb-1">Week Number</label>
-                <input type="number" step="any" name="week_number" value={formData.week_number} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="week_number" value={formData.week_number} onChange={handleChange} required className="input-signal" placeholder="e.g. 20 (Current sprint/week)" />
               </div>
               <div>
                 <label className="small-label block mb-1">Issue Count</label>
-                <input type="number" step="any" name="issue_count" value={formData.issue_count} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="issue_count" value={formData.issue_count} onChange={handleChange} required className="input-signal" placeholder="e.g. 32 (Total logged issues)" />
               </div>
               <div>
                 <label className="small-label block mb-1">Task Completion Rate (%)</label>
-                <input type="number" step="any" name="task_completion_rate" value={formData.task_completion_rate} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="task_completion_rate" value={formData.task_completion_rate} onChange={handleChange} required className="input-signal" placeholder="e.g. 42.9 (% completed)" />
               </div>
               <div>
                 <label className="small-label block mb-1">Unresolved Issue (%)</label>
-                <input type="number" step="any" name="unresolved_issue_percentage" value={formData.unresolved_issue_percentage} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="unresolved_issue_percentage" value={formData.unresolved_issue_percentage} onChange={handleChange} required className="input-signal" placeholder="e.g. 57.1 (% unresolved)" />
               </div>
               <div className="col-span-2">
                 <label className="small-label block mb-1">Overdue Tasks (%)</label>
-                <input type="number" step="any" name="overdue_tasks_percentage" value={formData.overdue_tasks_percentage} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="overdue_tasks_percentage" value={formData.overdue_tasks_percentage} onChange={handleChange} required className="input-signal" placeholder="e.g. 57.1 (% overdue tasks)" />
               </div>
             </div>
           </div>
@@ -213,23 +207,23 @@ export default function ProjectInput() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="small-label block mb-1">Defect Density</label>
-                <input type="number" step="any" name="defect_density" value={formData.defect_density} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="defect_density" value={formData.defect_density} onChange={handleChange} required className="input-signal" placeholder="e.g. 28.6 (Bugs per KLOC)" />
               </div>
               <div>
                 <label className="small-label block mb-1">Critical Bug Count</label>
-                <input type="number" step="any" name="critical_bug_count" value={formData.critical_bug_count} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="critical_bug_count" value={formData.critical_bug_count} onChange={handleChange} required className="input-signal" placeholder="e.g. 3 (High-severity bugs)" />
               </div>
               <div>
                 <label className="small-label block mb-1">Team Size (FTE)</label>
-                <input type="number" step="any" name="team_size" value={formData.team_size} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="team_size" value={formData.team_size} onChange={handleChange} required className="input-signal" placeholder="e.g. 4 (Full-time engineers)" />
               </div>
               <div>
                 <label className="small-label block mb-1">Schedule Progress (%)</label>
-                <input type="number" step="any" name="schedule_progress_percentage" value={formData.schedule_progress_percentage} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="schedule_progress_percentage" value={formData.schedule_progress_percentage} onChange={handleChange} required className="input-signal" placeholder="e.g. 42.9 (% schedule completed)" />
               </div>
               <div className="col-span-2">
                 <label className="small-label block mb-1">Stale Days Threshold</label>
-                <input type="number" step="any" name="stale_days_threshold_used" value={formData.stale_days_threshold_used} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="stale_days_threshold_used" value={formData.stale_days_threshold_used} onChange={handleChange} required className="input-signal" placeholder="e.g. 39 (Days without activity)" />
               </div>
             </div>
           </div>
@@ -240,23 +234,23 @@ export default function ProjectInput() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="small-label block mb-1">Issue Count Delta</label>
-                <input type="number" step="any" name="issue_count_delta" value={formData.issue_count_delta} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="issue_count_delta" value={formData.issue_count_delta} onChange={handleChange} required className="input-signal" placeholder="e.g. +8.0 (Weekly count change)" />
               </div>
               <div>
                 <label className="small-label block mb-1">Task Completion Rate Delta</label>
-                <input type="number" step="any" name="task_completion_rate_delta" value={formData.task_completion_rate_delta} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="task_completion_rate_delta" value={formData.task_completion_rate_delta} onChange={handleChange} required className="input-signal" placeholder="e.g. -8.5 (Weekly % change)" />
               </div>
               <div>
                 <label className="small-label block mb-1">Overdue Tasks Delta (%)</label>
-                <input type="number" step="any" name="overdue_tasks_percentage_delta" value={formData.overdue_tasks_percentage_delta} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="overdue_tasks_percentage_delta" value={formData.overdue_tasks_percentage_delta} onChange={handleChange} required className="input-signal" placeholder="e.g. +14.2 (Weekly % change)" />
               </div>
               <div>
                 <label className="small-label block mb-1">Defect Density Delta</label>
-                <input type="number" step="any" name="defect_density_delta" value={formData.defect_density_delta} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="defect_density_delta" value={formData.defect_density_delta} onChange={handleChange} required className="input-signal" placeholder="e.g. +4.2 (Weekly defect change)" />
               </div>
               <div className="col-span-2">
                 <label className="small-label block mb-1">Team Size Delta</label>
-                <input type="number" step="any" name="team_size_delta" value={formData.team_size_delta} onChange={handleChange} required className="input-signal" />
+                <input type="number" step="any" name="team_size_delta" value={formData.team_size_delta} onChange={handleChange} required className="input-signal" placeholder="e.g. -2.0 (Weekly team change)" />
               </div>
             </div>
           </div>

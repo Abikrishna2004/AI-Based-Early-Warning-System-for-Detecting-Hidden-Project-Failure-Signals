@@ -149,23 +149,20 @@ export default function AnalyzeProject() {
             {/* Project Identity */}
             <div className="mb-4 space-y-2">
               <div className="form-field">
-                <div className="flex items-center justify-between mb-1">
-                  <label className="form-label">Project ID</label>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#131B2E] text-[#34D399] border border-[#34D399]/40 font-bold">
-                    🔒 Auto-Generated (PROJ-YYMMXXX)
-                  </span>
-                </div>
+                <label className="form-label">Project ID</label>
                 <input
                   type="text"
                   name="project_id"
                   value={formData.project_id || ''}
                   readOnly
                   className="form-input font-mono font-bold bg-[#131B2E]/70 text-[#38BDF8] border-[#38BDF8]/40 cursor-not-allowed"
-                  title="Project ID is automatically generated in PROJ-YYMMXXX format and cannot be manually modified."
+                  title="Project ID is automatically generated in PROJ-YYMMXXX format."
                 />
               </div>
               <div className="form-field">
-                <label className="form-label">Project Name</label>
+                <label className="form-label">
+                  Project Name <span className="text-[11px] font-normal text-[#8B95AC]">(Entered by user)</span>
+                </label>
                 <input type="text" name="project_name" value={formData.project_name || ''} onChange={handleChange} required className="form-input" placeholder="e.g. Core Platform Upgrade" />
               </div>
             </div>
@@ -178,23 +175,23 @@ export default function AnalyzeProject() {
               <div className="form-grid">
                 <div className="form-field">
                   <label className="form-label">Week Number</label>
-                  <input type="number" step="any" name="week_number" value={formData.week_number} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="week_number" value={formData.week_number} onChange={handleChange} required className="form-input" placeholder="e.g. 20 (Current sprint/week)" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Issue Count</label>
-                  <input type="number" step="any" name="issue_count" value={formData.issue_count} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="issue_count" value={formData.issue_count} onChange={handleChange} required className="form-input" placeholder="e.g. 32 (Total logged issues)" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Task Comp Rate (%)</label>
-                  <input type="number" step="any" name="task_completion_rate" value={formData.task_completion_rate} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="task_completion_rate" value={formData.task_completion_rate} onChange={handleChange} required className="form-input" placeholder="e.g. 42.9 (% completed)" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Unresolved Issue %</label>
-                  <input type="number" step="any" name="unresolved_issue_percentage" value={formData.unresolved_issue_percentage} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="unresolved_issue_percentage" value={formData.unresolved_issue_percentage} onChange={handleChange} required className="form-input" placeholder="e.g. 57.1 (% unresolved)" />
                 </div>
                 <div className="form-field form-field-full">
                   <label className="form-label">Overdue Tasks %</label>
-                  <input type="number" step="any" name="overdue_tasks_percentage" value={formData.overdue_tasks_percentage} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="overdue_tasks_percentage" value={formData.overdue_tasks_percentage} onChange={handleChange} required className="form-input" placeholder="e.g. 57.1 (% overdue tasks)" />
                 </div>
               </div>
             </div>
@@ -207,23 +204,23 @@ export default function AnalyzeProject() {
               <div className="form-grid">
                 <div className="form-field">
                   <label className="form-label">Defect Density</label>
-                  <input type="number" step="any" name="defect_density" value={formData.defect_density} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="defect_density" value={formData.defect_density} onChange={handleChange} required className="form-input" placeholder="e.g. 28.6 (Defects per KLOC)" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Critical Bugs</label>
-                  <input type="number" step="any" name="critical_bug_count" value={formData.critical_bug_count} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="critical_bug_count" value={formData.critical_bug_count} onChange={handleChange} required className="form-input" placeholder="e.g. 3 (High-severity bugs)" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Team Size</label>
-                  <input type="number" step="any" name="team_size" value={formData.team_size} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="team_size" value={formData.team_size} onChange={handleChange} required className="form-input" placeholder="e.g. 4 (Full-time engineers)" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Schedule Progress %</label>
-                  <input type="number" step="any" name="schedule_progress_percentage" value={formData.schedule_progress_percentage} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="schedule_progress_percentage" value={formData.schedule_progress_percentage} onChange={handleChange} required className="form-input" placeholder="e.g. 42.9 (% scheduled progress)" />
                 </div>
                 <div className="form-field form-field-full">
                   <label className="form-label">Stale Days Threshold</label>
-                  <input type="number" step="any" name="stale_days_threshold_used" value={formData.stale_days_threshold_used} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="stale_days_threshold_used" value={formData.stale_days_threshold_used} onChange={handleChange} required className="form-input" placeholder="e.g. 39 (Days without activity)" />
                 </div>
               </div>
             </div>
@@ -236,23 +233,23 @@ export default function AnalyzeProject() {
               <div className="form-grid">
                 <div className="form-field">
                   <label className="form-label">Issue Count Δ</label>
-                  <input type="number" step="any" name="issue_count_delta" value={formData.issue_count_delta} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="issue_count_delta" value={formData.issue_count_delta} onChange={handleChange} required className="form-input" placeholder="e.g. +8.0 (Weekly count change)" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Task Comp Rate Δ</label>
-                  <input type="number" step="any" name="task_completion_rate_delta" value={formData.task_completion_rate_delta} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="task_completion_rate_delta" value={formData.task_completion_rate_delta} onChange={handleChange} required className="form-input" placeholder="e.g. -8.5 (Weekly % change)" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Overdue Tasks Δ %</label>
-                  <input type="number" step="any" name="overdue_tasks_percentage_delta" value={formData.overdue_tasks_percentage_delta} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="overdue_tasks_percentage_delta" value={formData.overdue_tasks_percentage_delta} onChange={handleChange} required className="form-input" placeholder="e.g. +14.2 (Weekly % change)" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Defect Density Δ</label>
-                  <input type="number" step="any" name="defect_density_delta" value={formData.defect_density_delta} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="defect_density_delta" value={formData.defect_density_delta} onChange={handleChange} required className="form-input" placeholder="e.g. +4.2 (Weekly defect change)" />
                 </div>
                 <div className="form-field form-field-full">
                   <label className="form-label">Team Size Δ</label>
-                  <input type="number" step="any" name="team_size_delta" value={formData.team_size_delta} onChange={handleChange} required className="form-input" />
+                  <input type="number" step="any" name="team_size_delta" value={formData.team_size_delta} onChange={handleChange} required className="form-input" placeholder="e.g. -2.0 (Weekly team change)" />
                 </div>
               </div>
             </div>

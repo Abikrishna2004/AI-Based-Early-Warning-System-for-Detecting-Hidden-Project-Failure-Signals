@@ -24,14 +24,11 @@ export default function Navigation() {
   return (
     <header className="header-card flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-3 mb-1">
           <h1 className="header-title text-2xl font-bold text-white flex items-center gap-3 m-0">
             <img src="/logo.jpg" alt="CompilePulse Logo" className="w-8 h-8 rounded-[6px] object-cover border border-[#FF8A3D]/40" />
             CompilePulse
           </h1>
-          <span className="text-xs px-2.5 py-0.5 rounded-full bg-sky-950 text-sky-400 border border-sky-800 font-mono">
-            v1.5.0
-          </span>
         </div>
         <p className="header-subtitle text-xs text-slate-400 m-0">
           An AI-Powered Project Intelligence &amp; Early Warning Platform

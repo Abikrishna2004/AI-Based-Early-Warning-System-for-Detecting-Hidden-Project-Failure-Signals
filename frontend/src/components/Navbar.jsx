@@ -72,11 +72,8 @@ export default function Navbar() {
                 <span className="font-heading text-[20px] font-bold text-[#E8ECF4] tracking-tight leading-none">
                   CompilePulse
                 </span>
-                <span className="font-sans text-[11px] font-medium px-2 py-0.5 rounded-[6px] bg-[#131B2E] text-[#FF8A3D] border border-[#FF8A3D]/30 font-mono">
-                  v1.5.0
-                </span>
               </div>
-              <span className="text-[10px] text-[#8B95AC] font-medium tracking-tight">
+              <span className="text-[10px] text-[#8B95AC] font-medium tracking-tight mt-0.5">
                 AI Project Intelligence &amp; Early Warning
               </span>
             </div>
