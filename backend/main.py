@@ -375,6 +375,34 @@ def health_check():
         "rag_module_loaded": embed_model is not None and chroma_collection is not None
     }
 
+# 4b. Auto-generate Formatted Project ID Endpoint (PROJ-YYMMXXX)
+@app.get("/generate_project_id")
+def generate_project_id(db: Session = Depends(get_db)):
+    now = datetime.now(timezone.utc)
+    yy = now.strftime("%y") # e.g. '26'
+    mm = now.strftime("%m") # e.g. '09'
+    prefix = f"PROJ-{yy}{mm}" # e.g. 'PROJ-2609'
+    
+    projs = db.query(Project.project_id).filter(Project.project_id.like(f"{prefix}%")).all()
+    
+    max_seq = 0
+    for (pid,) in projs:
+        seq_str = pid[len(prefix):]
+        if seq_str.isdigit():
+            val = int(seq_str)
+            if val > max_seq:
+                max_seq = val
+                
+    next_seq = max_seq + 1
+    next_id = f"{prefix}{next_seq:03d}"
+    
+    return {
+        "project_id": next_id,
+        "prefix": prefix,
+        "year_month": f"{yy}{mm}",
+        "sequence": next_seq
+    }
+
 def compute_project_health_index(features: ProjectFeatures, prob_dict: dict, pred_risk: str) -> Dict[str, Any]:
     comp_score = max(0.0, min(100.0, features.task_completion_rate))
     overdue_score = max(0.0, min(100.0, 100.0 - features.overdue_tasks_percentage))
@@ -503,7 +531,10 @@ def predict_project_risk(features: ProjectFeatures, db: Session = Depends(get_db
     # Compute Health Index & Status
     health_info = compute_project_health_index(features, prob_dict, pred_risk)
 
-    proj_id = features.project_id or "PROJ-101"
+    if not features.project_id or features.project_id.strip() == "" or features.project_id == "AUTO":
+        proj_id = generate_project_id(db)["project_id"]
+    else:
+        proj_id = features.project_id.strip()
     proj_name = features.project_name or f"Project {proj_id}"
     now = datetime.now(timezone.utc)
 

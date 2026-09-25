@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../config';
 
 const PRESETS = {
   healthy: {
-    project_id: 'PROJ-HEALTHY',
+    project_id: 'PROJ-2609001',
     project_name: 'CompilePulse Healthy Sprint',
     week_number: 12, issue_count: 5, task_completion_rate: 90.0,
     unresolved_issue_percentage: 10.0, overdue_tasks_percentage: 5.0,
@@ -14,7 +14,7 @@ const PRESETS = {
     overdue_tasks_percentage_delta: -2.0, defect_density_delta: -0.5, team_size_delta: 0.0
   },
   warning: {
-    project_id: 'PROJ-WARN',
+    project_id: 'PROJ-2609002',
     project_name: 'CompilePulse Moderate Warning',
     week_number: 16, issue_count: 18, task_completion_rate: 65.0,
     unresolved_issue_percentage: 35.0, overdue_tasks_percentage: 25.0,
@@ -24,7 +24,7 @@ const PRESETS = {
     overdue_tasks_percentage_delta: 5.0, defect_density_delta: 1.5, team_size_delta: -1.0
   },
   critical: {
-    project_id: 'PROJ-101',
+    project_id: 'PROJ-2609003',
     project_name: 'CompilePulse Critical Core',
     week_number: 20, issue_count: 32, task_completion_rate: 42.9,
     unresolved_issue_percentage: 57.1, overdue_tasks_percentage: 57.1,
@@ -42,9 +42,29 @@ export default function AnalyzeProject() {
   const [result, setResult] = useState(null);
   const [checkedActions, setCheckedActions] = useState({});
 
+  React.useEffect(() => {
+    fetchNextProjectId();
+  }, []);
+
+  const fetchNextProjectId = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/generate_project_id`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.project_id) {
+          setFormData(prev => ({ ...prev, project_id: data.project_id }));
+        }
+      }
+    } catch (err) {
+      console.warn('Using default formatted project_id fallback:', err);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'project_id' || name === 'project_name') {
+    if (name === 'project_id') {
+      return; // Read-only property
+    } else if (name === 'project_name') {
       setFormData(prev => ({ ...prev, [name]: value }));
     } else {
       setFormData(prev => ({
@@ -55,7 +75,11 @@ export default function AnalyzeProject() {
   };
 
   const handlePreset = (presetKey) => {
-    setFormData(PRESETS[presetKey]);
+    const currentId = formData.project_id;
+    setFormData({
+      ...PRESETS[presetKey],
+      project_id: currentId || PRESETS[presetKey].project_id
+    });
     setResult(null);
     setError(null);
   };
@@ -125,8 +149,20 @@ export default function AnalyzeProject() {
             {/* Project Identity */}
             <div className="mb-4 space-y-2">
               <div className="form-field">
-                <label className="form-label">Project ID</label>
-                <input type="text" name="project_id" value={formData.project_id || ''} onChange={handleChange} required className="form-input font-mono" placeholder="e.g. PROJ-101" />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="form-label">Project ID</label>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#131B2E] text-[#34D399] border border-[#34D399]/40 font-bold">
+                    🔒 Auto-Generated (PROJ-YYMMXXX)
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  name="project_id"
+                  value={formData.project_id || ''}
+                  readOnly
+                  className="form-input font-mono font-bold bg-[#131B2E]/70 text-[#38BDF8] border-[#38BDF8]/40 cursor-not-allowed"
+                  title="Project ID is automatically generated in PROJ-YYMMXXX format and cannot be manually modified."
+                />
               </div>
               <div className="form-field">
                 <label className="form-label">Project Name</label>
