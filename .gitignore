@@ -48,3 +48,7 @@ frontend/.firebase/
 # OS files
 Thumbs.db
 [Dd]esktop.ini
+
+# Scratch temporary files
+scratch/
+

@@ -9,7 +9,9 @@ Server will start on http://127.0.0.1:8000
 Interactive API Docs (Swagger): http://127.0.0.1:8000/docs
 """
 
+import sys
 import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import torch
 torch.set_num_threads(1)
@@ -34,7 +36,7 @@ import torch
 import torch.nn as nn
 import ruptures as rpt
 from sqlalchemy.orm import Session
-from database import init_db, get_db, Project, ProjectInput, Prediction, Recommendation
+from database import init_db, get_db, Project, ProjectInput, Prediction, Recommendation, RAGSource, RAGChunk, RAGSession, RAGSessionSource, RAGOutput
 
 import asyncio
 
@@ -266,7 +268,7 @@ def get_chroma_collection():
 
 # 3. Artifact & Model Loading on Startup
 def load_artifacts():
-    global cb_model, anomaly_model, embed_model, chroma_client, chroma_collection, archetype_model, archetype_map, lstm_model, lstm_scaler, calibration_model, classes
+    global cb_model, anomaly_model, archetype_model, archetype_map, lstm_model, lstm_scaler, classes, shap_interaction_data, signal_precedence_data
     base_dir = os.path.dirname(__file__)
     
     print("[LOAD] Step 1: Loading CatBoost Classifier...", flush=True)
@@ -327,7 +329,7 @@ def load_artifacts():
         try:
             from compute_shap_interactions import compute_and_save_shap_interactions
             shap_interaction_data = compute_and_save_shap_interactions()
-            print(f"[LOAD] SHAP interaction matrix computed & saved on demand.", flush=True)
+            print("[LOAD] SHAP interaction matrix computed & saved on demand.", flush=True)
         except Exception as e:
             print(f"[LOAD] SHAP interaction computation error: {e}", flush=True)
 
@@ -345,7 +347,7 @@ def load_artifacts():
         try:
             from compute_signal_precedence import compute_and_save_signal_precedence
             signal_precedence_data = compute_and_save_signal_precedence()
-            print(f"[LOAD] Signal precedence analysis computed & saved on demand.", flush=True)
+            print("[LOAD] Signal precedence analysis computed & saved on demand.", flush=True)
         except Exception as e:
             print(f"[LOAD] Signal precedence computation error: {e}", flush=True)
 
@@ -375,18 +377,17 @@ def health_check():
         "rag_module_loaded": embed_model is not None and chroma_collection is not None
     }
 
-# 4b. Auto-generate Formatted Project ID Endpoint (PROJ-YYMMXXX)
+# 4b. Auto-generate Formatted Project ID Endpoint (PROJ-YYMMDD-NNN)
 @app.get("/generate_project_id")
 def generate_project_id(db: Session = Depends(get_db)):
     now = datetime.now(timezone.utc)
-    yy = now.strftime("%y") # e.g. '26'
-    mm = now.strftime("%m") # e.g. '09'
-    prefix = f"PROJ-{yy}{mm}" # e.g. 'PROJ-2609'
+    yymmdd = now.strftime("%y%m%d")  # e.g. '260925'
+    prefix = f"PROJ-{yymmdd}-"
     
     projs = db.query(Project.project_id).filter(Project.project_id.like(f"{prefix}%")).all()
-    
     max_seq = 0
-    for (pid,) in projs:
+    for row in projs:
+        pid = str(row[0])
         seq_str = pid[len(prefix):]
         if seq_str.isdigit():
             val = int(seq_str)
@@ -395,13 +396,49 @@ def generate_project_id(db: Session = Depends(get_db)):
                 
     next_seq = max_seq + 1
     next_id = f"{prefix}{next_seq:03d}"
+    return {"project_id": next_id, "yymmdd": yymmdd, "sequence": next_seq}
+
+# 4c. Auto-generate Formatted Source ID Endpoint (SRC-YYMMDD-NNN)
+@app.get("/generate_source_id")
+def generate_source_id(db: Session = Depends(get_db)):
+    now = datetime.now(timezone.utc)
+    yymmdd = now.strftime("%y%m%d")
+    prefix = f"SRC-{yymmdd}-"
     
-    return {
-        "project_id": next_id,
-        "prefix": prefix,
-        "year_month": f"{yy}{mm}",
-        "sequence": next_seq
-    }
+    sources = db.query(RAGSource.source_id).filter(RAGSource.source_id.like(f"{prefix}%")).all()
+    max_seq = 0
+    for row in sources:
+        sid = str(row[0])
+        seq_str = sid[len(prefix):]
+        if seq_str.isdigit():
+            val = int(seq_str)
+            if val > max_seq:
+                max_seq = val
+                
+    next_seq = max_seq + 1
+    next_id = f"{prefix}{next_seq:03d}"
+    return {"source_id": next_id, "yymmdd": yymmdd, "sequence": next_seq}
+
+# 4d. Auto-generate Formatted RAG Session ID Endpoint (RAG-YYMMDD-NNN)
+@app.get("/generate_rag_session_id")
+def generate_rag_session_id(db: Session = Depends(get_db)):
+    now = datetime.now(timezone.utc)
+    yymmdd = now.strftime("%y%m%d")
+    prefix = f"RAG-{yymmdd}-"
+    
+    sessions = db.query(RAGSession.rag_session_id).filter(RAGSession.rag_session_id.like(f"{prefix}%")).all()
+    max_seq = 0
+    for row in sessions:
+        rid = str(row[0])
+        seq_str = rid[len(prefix):]
+        if seq_str.isdigit():
+            val = int(seq_str)
+            if val > max_seq:
+                max_seq = val
+                
+    next_seq = max_seq + 1
+    next_id = f"{prefix}{next_seq:03d}"
+    return {"rag_session_id": next_id, "yymmdd": yymmdd, "sequence": next_seq}
 
 def compute_project_health_index(features: ProjectFeatures, prob_dict: dict, pred_risk: str) -> Dict[str, Any]:
     comp_score = max(0.0, min(100.0, features.task_completion_rate))
@@ -1230,7 +1267,6 @@ def _compute_lstm_forecast(req: ForecastRequest):
     if lstm_model is not None and lstm_scaler is not None:
         try:
             scaler_min = lstm_scaler['scaler_min']
-            scaler_max = lstm_scaler['scaler_max']
             scaler_range = lstm_scaler['scaler_range']
 
             scaled_seq = (raw_window - scaler_min) / scaler_range
@@ -1530,7 +1566,7 @@ def ingest_document_knowledge(req: IngestDocumentRequest, background_tasks: Back
 
     # Delete previous chunks for this project_id so re-ingestion is clean & updated
     try:
-        collection.delete(where={"project_id": req.project_id})
+        collection.delete(where=cast(Any, {"project_id": req.project_id}))
     except Exception:
         pass
 
@@ -1624,7 +1660,7 @@ def ask_project_knowledge(req: AskQuestionRequest):
         }
 
     # Check if any documents exist for this project_id in ChromaDB
-    existing_docs = collection.get(where={"project_id": req.project_id})
+    existing_docs = collection.get(where=cast(Any, {"project_id": req.project_id}))
     if not existing_docs or not existing_docs.get('ids') or len(existing_docs['ids']) == 0:
         return {
             "project_id": req.project_id,
@@ -1644,7 +1680,7 @@ def ask_project_knowledge(req: AskQuestionRequest):
     query_res = collection.query(
         query_embeddings=q_embedding,
         n_results=n_results,
-        where={"project_id": req.project_id}
+        where=cast(Any, {"project_id": req.project_id})
     )
 
     retrieved_chunks = []
@@ -1675,6 +1711,7 @@ def ask_project_knowledge(req: AskQuestionRequest):
                 "answer": "I could not find information regarding your question in the uploaded document. Please ask a question relevant to the project context."
             }
 
+        answer = ""
         # Local seq2seq answer synthesis using google/flan-t5-base
         try:
             tokenizer, f_model = get_flan_model()
@@ -1719,12 +1756,472 @@ def ask_project_knowledge(req: AskQuestionRequest):
         except Exception as synth_err:
             print(f"[RAG] Flan-T5 Synthesis fallback: {synth_err}", flush=True)
             answer = _format_direct_answer(req.question, retrieved_chunks[0]['chunk_text'])
-    else:
-        answer = f"No project knowledge base exists for project '{req.project_id}' yet. Please ingest project documents first."
+
+        return {
+            "project_id": req.project_id,
+            "question": req.question,
+            "retrieved_chunks": retrieved_chunks,
+            "answer": answer
+        }
 
     return {
         "project_id": req.project_id,
         "question": req.question,
+        "retrieved_chunks": [],
+        "answer": "No relevant chunks found in the project document."
+    }
+
+class CreateAnalysisSourceRequest(BaseModel):
+    project_id: str
+
+class UploadSourceDataRequest(BaseModel):
+    project_id: Optional[str] = None
+    source_type: str  # PROJECT_DOCUMENT, PROJECT_MANUAL_DATA, INDEPENDENT_DOCUMENT, INDEPENDENT_MANUAL_DATA, INDEPENDENT_DATASET
+    source_name: str
+    file_name: Optional[str] = None
+    text: str
+
+class AskRAGRequest(BaseModel):
+    query: str
+    source_id: str
+    project_id: Optional[str] = None
+
+# 12. RAG Source Management — Create Logical Source from Existing Project Risk Analysis
+@app.post("/rag_sources/create_from_analysis")
+def create_source_from_project_analysis(req: CreateAnalysisSourceRequest, db: Session = Depends(get_db)):
+    proj = db.query(Project).filter(Project.project_id == req.project_id).first()
+    if not proj:
+        raise HTTPException(status_code=404, detail=f"Project with ID '{req.project_id}' not found.")
+
+    # Query latest prediction & input for this project
+    latest_pred = (
+        db.query(Prediction)
+        .filter(Prediction.project_id == req.project_id)
+        .order_by(Prediction.prediction_date.desc(), Prediction.prediction_id.desc())
+        .first()
+    )
+    latest_input = (
+        db.query(ProjectInput)
+        .filter(ProjectInput.project_id == req.project_id)
+        .order_by(ProjectInput.timestamp.desc(), ProjectInput.input_id.desc())
+        .first()
+    )
+
+    if not latest_pred or not latest_input:
+        raise HTTPException(
+            status_code=400,
+            detail=f"No risk evaluation history exists for project '{req.project_id}'. Please run a project risk evaluation first."
+        )
+
+    # Check if a PROJECT_ANALYSIS source already exists for this project
+    existing_source = (
+        db.query(RAGSource)
+        .filter(RAGSource.project_id == req.project_id, RAGSource.source_type == "PROJECT_ANALYSIS")
+        .first()
+    )
+
+    # Convert project risk analysis history into clean, structured RAG text
+    recs = (
+        db.query(Recommendation)
+        .filter(Recommendation.prediction_id == latest_pred.prediction_id)
+        .order_by(Recommendation.priority.asc())
+        .all()
+    )
+    rec_text = "\n".join([f"• Priority {r.priority} ({r.risk_factor}): {r.recommendation}" for r in recs]) or "• Maintain active monitoring across velocity and quality metrics."
+
+    pred_date_val = getattr(latest_pred, 'prediction_date', None) if latest_pred else None
+    pred_date_str = pred_date_val.strftime('%Y-%m-%d %H:%M:%S UTC') if pred_date_val else "N/A"
+    
+    model_version_str = str(getattr(latest_pred, 'model_version', 'catboost_v1') or 'catboost_v1')
+    risk_level_str = str(getattr(latest_pred, 'risk_level', 'Unknown') or 'Unknown')
+    
+    raw_prob = getattr(latest_pred, 'risk_probability', 0.0) if latest_pred else 0.0
+    prob_val = float(raw_prob) if raw_prob is not None else 0.0
+    confidence_pct = round(prob_val * 100.0, 1)
+
+    analysis_text = f"""
+PROJECT RISK ANALYSIS KNOWLEDGE BASE FOR {proj.project_name} ({proj.project_id})
+================================================================================
+Project Identifier: {proj.project_id}
+Project Name: {proj.project_name}
+Analysis Date: {pred_date_str}
+Model Version: {model_version_str}
+
+1. EXECUTIVE RISK EVALUATION SUMMARY:
+Primary Risk Classification: {risk_level_str} Risk
+CatBoost Classifier Confidence: {confidence_pct}%
+
+2. CORE PROJECT TELEMETRY METRICS:
+• Week Number: {latest_input.week_number}
+• Issue Count: {latest_input.issue_count} (1-Week Delta: {latest_input.issue_count_delta:g})
+• Task Completion Rate: {latest_input.task_completion_rate}% (1-Week Delta: {latest_input.task_completion_rate_delta:g}%)
+• Unresolved Issues: {latest_input.unresolved_issue_percentage}%
+• Overdue Tasks Percentage: {latest_input.overdue_tasks_percentage}% (1-Week Delta: {latest_input.overdue_tasks_percentage_delta:g}%)
+• Defect Density: {latest_input.defect_density} bugs/KLOC (1-Week Delta: {latest_input.defect_density_delta:g})
+• Critical Bug Count: {latest_input.critical_bug_count}
+• Team Size: {latest_input.team_size} FTE (1-Week Delta: {latest_input.team_size_delta:g})
+• Schedule Progress: {latest_input.schedule_progress_percentage}%
+• Stale Days Threshold: {latest_input.stale_days_threshold_used} days
+
+3. ACTIONABLE RECOMMENDATIONS & MITIGATION PLAN:
+{rec_text}
+""".strip()
+
+    if existing_source is not None:
+        # If text content is unchanged, reuse existing source
+        if existing_source.content == analysis_text:
+            return {
+                "source_id": existing_source.source_id,
+                "project_id": existing_source.project_id,
+                "source_name": existing_source.source_name,
+                "source_type": existing_source.source_type,
+                "reused": True,
+                "message": "Existing project risk analysis source retrieved and ready for RAG."
+            }
+        else:
+            # Update existing source content
+            source_id = str(existing_source.source_id)
+            cast(Any, existing_source).content = analysis_text
+            cast(Any, existing_source).updated_at = datetime.now(timezone.utc)
+            db.query(RAGChunk).filter(RAGChunk.source_id == source_id).delete()
+    else:
+        # Generate new Source ID
+        gen_src = generate_source_id(db)
+        source_id = str(gen_src["source_id"])
+        new_source = RAGSource(
+            source_id=source_id,
+            project_id=req.project_id,
+            source_type="PROJECT_ANALYSIS",
+            source_name=f"Project Risk Analysis — {proj.project_name}",
+            content=analysis_text,
+            processing_status="COMPLETED"
+        )
+        db.add(new_source)
+
+    db.flush()
+
+    # Chunk and embed
+    chunks = _chunk_text_by_paragraphs_and_sentences(analysis_text)
+    for idx, c_text in enumerate(chunks):
+        c_row = RAGChunk(
+            source_id=source_id,
+            chunk_index=idx,
+            chunk_text=c_text
+        )
+        db.add(c_row)
+
+    db.commit()
+
+    # Ingest into ChromaDB with source_id metadata tag
+    try:
+        model = get_embed_model()
+        collection = get_chroma_collection()
+        with torch.no_grad():
+            embeddings = model.encode(chunks, show_progress_bar=False, batch_size=8).tolist()
+
+        c_ids = [f"{source_id}_{i}" for i in range(len(chunks))]
+        c_metas = [{"source_id": source_id, "project_id": req.project_id, "source_type": "PROJECT_ANALYSIS", "chunk_index": i} for i in range(len(chunks))]
+
+        try:
+            collection.delete(where=cast(Any, {"source_id": source_id}))
+        except Exception:
+            pass
+
+        collection.add(documents=chunks, embeddings=embeddings, ids=c_ids, metadatas=cast(Any, c_metas))
+    except Exception as e:
+        print(f"[RAG] Vector DB sync error for analysis source {source_id}: {e}")
+
+    return {
+        "source_id": source_id,
+        "project_id": req.project_id,
+        "source_name": f"Project Risk Analysis — {proj.project_name}",
+        "source_type": "PROJECT_ANALYSIS",
+        "chunks_count": len(chunks),
+        "reused": False,
+        "message": "Project risk analysis converted into RAG knowledge source successfully."
+    }
+
+# 13. RAG Source Management — Upload New Project or Independent Document / Data
+@app.post("/rag_sources/upload")
+def upload_rag_source(req: UploadSourceDataRequest, db: Session = Depends(get_db)):
+    text_content = req.text.strip()
+    if not text_content:
+        raise HTTPException(status_code=400, detail="Document/data content cannot be empty.")
+
+    is_independent = req.source_type.startswith("INDEPENDENT") or not req.project_id
+
+    proj_id = None
+    if not is_independent and req.project_id:
+        proj = db.query(Project).filter(Project.project_id == req.project_id).first()
+        if proj:
+            proj_id = proj.project_id
+        else:
+            raise HTTPException(status_code=404, detail=f"Project with ID '{req.project_id}' not found.")
+
+    gen_src = generate_source_id(db)
+    source_id = gen_src["source_id"]
+
+    new_source = RAGSource(
+        source_id=source_id,
+        project_id=proj_id,
+        source_type=req.source_type,
+        source_name=req.source_name or req.file_name or f"Source {source_id}",
+        file_name=req.file_name,
+        content=text_content,
+        processing_status="COMPLETED"
+    )
+    db.add(new_source)
+    db.flush()
+
+    chunks = _chunk_text_by_paragraphs_and_sentences(text_content)
+    if not chunks:
+        chunks = [text_content]
+
+    for idx, c_text in enumerate(chunks):
+        c_row = RAGChunk(
+            source_id=source_id,
+            chunk_index=idx,
+            chunk_text=c_text
+        )
+        db.add(c_row)
+
+    db.commit()
+
+    # Sync to ChromaDB
+    try:
+        model = get_embed_model()
+        collection = get_chroma_collection()
+        with torch.no_grad():
+            embeddings = model.encode(chunks, show_progress_bar=False, batch_size=8).tolist()
+
+        c_ids = [f"{source_id}_{i}" for i in range(len(chunks))]
+        c_metas = [{"source_id": source_id, "project_id": proj_id or "INDEPENDENT", "source_type": req.source_type, "chunk_index": i} for i in range(len(chunks))]
+
+        collection.add(documents=chunks, embeddings=embeddings, ids=c_ids, metadatas=cast(Any, c_metas))
+    except Exception as e:
+        print(f"[RAG] Vector DB sync error for source {source_id}: {e}")
+
+    return {
+        "source_id": source_id,
+        "project_id": proj_id,
+        "source_name": new_source.source_name,
+        "source_type": req.source_type,
+        "file_name": req.file_name,
+        "chunks_count": len(chunks),
+        "created_at": new_source.created_at.isoformat()
+    }
+
+# 14. GET /rag_sources — List Sources by Project or Independent
+@app.get("/rag_sources")
+def list_rag_sources(project_id: Optional[str] = None, is_independent: Optional[bool] = None, db: Session = Depends(get_db)):
+    query = db.query(RAGSource)
+    if is_independent:
+        query = query.filter(RAGSource.project_id.is_(None))
+    elif project_id:
+        query = query.filter(RAGSource.project_id == project_id)
+
+    sources = query.order_by(RAGSource.created_at.desc()).all()
+    res = []
+    for s in sources:
+        chunks_cnt = db.query(RAGChunk).filter(RAGChunk.source_id == s.source_id).count()
+        res.append({
+            "source_id": s.source_id,
+            "project_id": s.project_id,
+            "source_type": s.source_type,
+            "source_name": s.source_name,
+            "file_name": s.file_name,
+            "processing_status": s.processing_status,
+            "chunks_count": chunks_cnt,
+            "created_at": s.created_at.isoformat()
+        })
+    return res
+
+# 15. RAG Execution Endpoint — Ask RAG (Reuses Processed Chunks & Stores Session History)
+@app.post("/ask_rag")
+def execute_rag_session(req: AskRAGRequest, db: Session = Depends(get_db)):
+    if not req.query or not req.query.strip():
+        raise HTTPException(status_code=400, detail="Query cannot be empty.")
+    if not req.source_id or not req.source_id.strip():
+        raise HTTPException(status_code=400, detail="source_id is required.")
+
+    # Retrieve source metadata
+    src = db.query(RAGSource).filter(RAGSource.source_id == req.source_id).first()
+    if not src:
+        raise HTTPException(status_code=404, detail=f"Source with ID '{req.source_id}' not found.")
+
+    proj_id = src.project_id or req.project_id
+
+    # Retrieve existing chunks for this source from database
+    db_chunks = db.query(RAGChunk).filter(RAGChunk.source_id == req.source_id).order_by(RAGChunk.chunk_index.asc()).all()
+    if not db_chunks:
+        raise HTTPException(status_code=400, detail=f"Source '{req.source_id}' has no processed knowledge chunks.")
+
+    retrieved_chunks = []
+    try:
+        model = get_embed_model()
+        collection = get_chroma_collection()
+
+        with torch.no_grad():
+            q_emb = model.encode([req.query.strip()], show_progress_bar=False).tolist()
+
+        c_results = collection.query(
+            query_embeddings=q_emb,
+            n_results=min(3, len(db_chunks)),
+            where=cast(Any, {"source_id": req.source_id})
+        )
+
+        if c_results and c_results.get('documents') and len(c_results['documents']) > 0:
+            docs = c_results['documents'][0]
+            dists = c_results['distances'][0] if c_results.get('distances') else [0.0] * len(docs)
+            for doc_t, dist in zip(docs, dists):
+                sim = round(float(1.0 / (1.0 + dist)), 3)
+                retrieved_chunks.append({
+                    "chunk_text": doc_t,
+                    "similarity_score": sim,
+                    "source_name": src.source_name
+                })
+    except Exception as err:
+        print(f"[RAG] Vector query fallback to DB text match: {err}")
+
+    # Fallback to DB chunks if vector query returns empty
+    if not retrieved_chunks:
+        for c in db_chunks[:3]:
+            retrieved_chunks.append({
+                "chunk_text": c.chunk_text,
+                "similarity_score": 0.85,
+                "source_name": src.source_name
+            })
+
+    # Synthesize answer
+    context_text = "\n".join([f"- {c['chunk_text']}" for c in retrieved_chunks])
+    try:
+        tokenizer, f_model = get_flan_model()
+        if tokenizer is not None and f_model is not None:
+            prompt = (
+                f"Context:\n{context_text}\n\n"
+                f"Question: {req.query}\n\n"
+                f"Instructions: Provide a clear, accurate, multi-sentence response based strictly on the context above."
+            )
+            inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
+            with torch.no_grad():
+                outputs = f_model.generate(**inputs, max_new_tokens=160, num_beams=2, early_stopping=True)
+            gen_tokens = cast(Any, outputs)[0]
+            raw_gen = cast(str, tokenizer.decode(gen_tokens, skip_special_tokens=True)).strip()
+            answer = raw_gen if raw_gen else _format_direct_answer(req.query, retrieved_chunks[0]['chunk_text'])
+        else:
+            answer = _format_direct_answer(req.query, retrieved_chunks[0]['chunk_text'])
+    except Exception:
+        answer = _format_direct_answer(req.query, retrieved_chunks[0]['chunk_text'])
+
+    if not answer or len(answer.strip()) < 5:
+        answer = f"Based on knowledge source '{src.source_name}' ({src.source_id}): {retrieved_chunks[0]['chunk_text']}"
+
+    # Generate unique RAG Session ID (RAG-YYMMDD-NNN)
+    gen_session = generate_rag_session_id(db)
+    session_id = gen_session["rag_session_id"]
+    now = datetime.now(timezone.utc)
+
+    # 1. Store RAG Session
+    new_session = RAGSession(
+        rag_session_id=session_id,
+        project_id=proj_id,
+        query=req.query,
+        model="all-MiniLM-L6-v2 + DistilGPT2/FLAN",
+        created_at=now
+    )
+    db.add(new_session)
+    db.flush()
+
+    # 2. Store Junction Association (RAGSessionSource)
+    session_src = RAGSessionSource(
+        rag_session_id=session_id,
+        source_id=req.source_id,
+        created_at=now
+    )
+    db.add(session_src)
+    db.flush()
+
+    # 3. Store RAG Output (Immutable history output)
+    new_output = RAGOutput(
+        rag_session_id=session_id,
+        response=answer,
+        retrieved_context=context_text,
+        created_at=now
+    )
+    db.add(new_output)
+    db.commit()
+
+    return {
+        "rag_session_id": session_id,
+        "project_id": proj_id,
+        "source_id": req.source_id,
+        "source_name": src.source_name,
+        "source_type": src.source_type,
+        "query": req.query,
+        "answer": answer,
+        "retrieved_context": context_text,
         "retrieved_chunks": retrieved_chunks,
-        "answer": answer
+        "created_at": now.isoformat()
+    }
+
+# 16. GET /rag_sessions — List RAG History Records
+@app.get("/rag_sessions")
+def list_rag_sessions(project_id: Optional[str] = None, source_id: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(RAGSession)
+    if project_id:
+        query = query.filter(RAGSession.project_id == project_id)
+
+    sessions = query.order_by(RAGSession.created_at.desc()).all()
+    history = []
+
+    for sess in sessions:
+        # Get associated sources via junction table
+        src_assoc = db.query(RAGSessionSource).filter(RAGSessionSource.rag_session_id == sess.rag_session_id).first()
+        src_obj = db.query(RAGSource).filter(RAGSource.source_id == src_assoc.source_id).first() if src_assoc else None
+        output_obj = db.query(RAGOutput).filter(RAGOutput.rag_session_id == sess.rag_session_id).first()
+
+        if source_id and (not src_assoc or src_assoc.source_id != source_id):
+            continue
+
+        proj_obj = db.query(Project).filter(Project.project_id == sess.project_id).first() if sess.project_id else None
+
+        history.append({
+            "rag_session_id": sess.rag_session_id,
+            "project_id": sess.project_id,
+            "project_name": proj_obj.project_name if proj_obj else "—",
+            "source_id": src_obj.source_id if src_obj else "—",
+            "source_name": src_obj.source_name if src_obj else "—",
+            "source_type": src_obj.source_type if src_obj else "INDEPENDENT",
+            "query": sess.query,
+            "answer": output_obj.response if output_obj else "",
+            "retrieved_context": output_obj.retrieved_context if output_obj else "",
+            "created_at": sess.created_at.isoformat()
+        })
+
+    return history
+
+# 17. GET /rag_sessions/{rag_session_id} — Get Single Historical RAG Session Detail
+@app.get("/rag_sessions/{rag_session_id}")
+def get_rag_session_detail(rag_session_id: str, db: Session = Depends(get_db)):
+    sess = db.query(RAGSession).filter(RAGSession.rag_session_id == rag_session_id).first()
+    if not sess:
+        raise HTTPException(status_code=404, detail=f"RAG Session '{rag_session_id}' not found.")
+
+    src_assoc = db.query(RAGSessionSource).filter(RAGSessionSource.rag_session_id == sess.rag_session_id).first()
+    src_obj = db.query(RAGSource).filter(RAGSource.source_id == src_assoc.source_id).first() if src_assoc else None
+    output_obj = db.query(RAGOutput).filter(RAGOutput.rag_session_id == sess.rag_session_id).first()
+    proj_obj = db.query(Project).filter(Project.project_id == sess.project_id).first() if sess.project_id else None
+
+    return {
+        "rag_session_id": sess.rag_session_id,
+        "project_id": sess.project_id,
+        "project_name": proj_obj.project_name if proj_obj else "—",
+        "source_id": src_obj.source_id if src_obj else "—",
+        "source_name": src_obj.source_name if src_obj else "—",
+        "source_type": src_obj.source_type if src_obj else "INDEPENDENT",
+        "query": sess.query,
+        "answer": output_obj.response if output_obj else "",
+        "retrieved_context": output_obj.retrieved_context if output_obj else "",
+        "model": sess.model,
+        "created_at": sess.created_at.isoformat()
     }

@@ -93,6 +93,82 @@ class Recommendation(Base):
 
     prediction = relationship("Prediction", back_populates="recommendations")
 
+# 5. RAG Knowledge Sources Table
+class RAGSource(Base):
+    __tablename__ = "rag_sources"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    source_id = Column(String, unique=True, nullable=False, index=True)  # SRC-YYMMDD-NNN
+    project_id = Column(String, ForeignKey("projects.project_id"), nullable=True, index=True)  # NULL for independent sources
+    source_type = Column(String, nullable=False)  # PROJECT_ANALYSIS, PROJECT_DOCUMENT, PROJECT_MANUAL_DATA, INDEPENDENT_DOCUMENT, INDEPENDENT_MANUAL_DATA, INDEPENDENT_DATASET
+    source_name = Column(String, nullable=False)
+    file_name = Column(String, nullable=True)
+    file_path = Column(String, nullable=True)
+    mime_type = Column(String, nullable=True)
+    content = Column(String, nullable=True)
+    metadata_json = Column(String, nullable=True)
+    processing_status = Column(String, default="COMPLETED", nullable=False)  # PENDING, PROCESSING, COMPLETED, FAILED
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now, nullable=False)
+
+    project = relationship("Project", backref="sources")
+    chunks = relationship("RAGChunk", back_populates="source", cascade="all, delete-orphan")
+    session_associations = relationship("RAGSessionSource", back_populates="source", cascade="all, delete-orphan")
+
+# 6. RAG Chunks Table
+class RAGChunk(Base):
+    __tablename__ = "rag_chunks"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    source_id = Column(String, ForeignKey("rag_sources.source_id"), nullable=False, index=True)
+    chunk_index = Column(Integer, nullable=False)
+    chunk_text = Column(String, nullable=False)
+    metadata_json = Column(String, nullable=True)
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
+
+    source = relationship("RAGSource", back_populates="chunks")
+
+# 7. RAG Sessions Table
+class RAGSession(Base):
+    __tablename__ = "rag_sessions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    rag_session_id = Column(String, unique=True, nullable=False, index=True)  # RAG-YYMMDD-NNN
+    project_id = Column(String, ForeignKey("projects.project_id"), nullable=True, index=True)
+    query = Column(String, nullable=False)
+    model = Column(String, default="all-MiniLM-L6-v2 + DistilGPT2/RAG", nullable=False)
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now, nullable=False)
+
+    project = relationship("Project", backref="rag_sessions")
+    source_associations = relationship("RAGSessionSource", back_populates="rag_session", cascade="all, delete-orphan")
+    outputs = relationship("RAGOutput", back_populates="rag_session", cascade="all, delete-orphan")
+
+# 8. RAG Session Sources Junction Table
+class RAGSessionSource(Base):
+    __tablename__ = "rag_session_sources"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    rag_session_id = Column(String, ForeignKey("rag_sessions.rag_session_id"), nullable=False, index=True)
+    source_id = Column(String, ForeignKey("rag_sources.source_id"), nullable=False, index=True)
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
+
+    rag_session = relationship("RAGSession", back_populates="source_associations")
+    source = relationship("RAGSource", back_populates="session_associations")
+
+# 9. RAG Outputs Table
+class RAGOutput(Base):
+    __tablename__ = "rag_outputs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    rag_session_id = Column(String, ForeignKey("rag_sessions.rag_session_id"), nullable=False, index=True)
+    response = Column(String, nullable=False)
+    retrieved_context = Column(String, nullable=False)
+    metadata_json = Column(String, nullable=True)
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
+
+    rag_session = relationship("RAGSession", back_populates="outputs")
+
 def init_db():
     Base.metadata.create_all(bind=engine)
 
